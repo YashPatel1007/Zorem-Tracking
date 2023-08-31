@@ -26,13 +26,18 @@ Copy the provided code and paste it at the top of your main plugin's PHP file, r
 ## Step 5: Add the Snippet Code
 Copy the provided code and paste it right after the plugin's header comment in your main plugin's PHP file.
 ```php
-require_once $this->get_plugin_path() . '/zorem-tracking/zorem-tracking.php';
-$this->tracker = WC_Trackers::get_instance();
-$this->tracker->set_tracker_data( array(
-    'custom_key' => '544641515656',
-    'user_id' => '10',
-    'slug' => 'woocommerce-advanced-shipment-tracking'
-) );
+if ( ! function_exists( 'zorem_tracking' ) ) {
+    function zorem_tracking() {
+        require_once dirname(__FILE__) . '/zorem-tracking/zorem-tracking.php';
+        $tracker = WC_Trackers::get_instance();
+        $tracker->set_tracker_data( array(
+            'custom_key' => '544641515656',
+            'user_id' => '10',
+            'slug' => 'woocommerce-advanced-shipment-tracking'
+        ) );
+    }
+}
+
 ```
 
 ## Step 6: Plugin Activation and Connection
