@@ -25,7 +25,6 @@ Copy the provided code and paste it at the top of your main plugin's PHP file, r
 
 ## Step 5: Add the Snippet Code
 Copy the provided code and paste it right after the plugin's header comment in your main plugin's PHP file.
-
 ```php
 require_once $this->get_plugin_path() . '/zorem-tracking/zorem-tracking.php';
 $this->tracker = WC_Trackers::get_instance();
@@ -34,3 +33,9 @@ $this->tracker->set_tracker_data( array(
     'user_id' => '10',
     'slug' => 'woocommerce-advanced-shipment-tracking'
 ) );
+```
+
+## Step 6: Plugin Activation and Connection
+1. Reactivate your plugin to ensure the recent changes take effect.
+2. After activation, your plugin will display an Opt-In screen.
+3. Click the "Allow & Continue" button on the Opt-In screen to establish the initial connection to our API, enabling your plugin to interact with our services seamlessly.
