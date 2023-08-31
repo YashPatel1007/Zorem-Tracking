@@ -31,11 +31,11 @@ if ( ! function_exists( 'zorem_tracking' ) ) {
 		require_once dirname(__FILE__) . '/zorem-tracking/zorem-tracking.php';
 		$tracker = WC_Trackers::get_instance();
 		$tracker->set_tracker_data( array(
-			'custom_key'    => '544641515656',
-			'user_id'       => '10',
-			'menu' 			=> array(
-				'slug'           => 'woocommerce-advanced-shipment-tracking',
-				'parent'         => array(
+			'custom_key' => '544641515656',
+			'user_id'    => '10',
+			'menu' 		 => array(
+				'slug'          => 'woocommerce-advanced-shipment-tracking',
+				'parent'        => array(
 					'slug' => '',
 					),
 				) 
