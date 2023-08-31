@@ -20,10 +20,7 @@ Choose how your plugin's main settings page should be accessible:
 - **No Settings Page:**
   - Choose this option if your plugin doesn't require a settings page.
 
-## Step 4: Configure Admin Menu
-Copy the provided code and paste it at the top of your main plugin's PHP file, right after the plugin's header comment.
-
-## Step 5: Add the Snippet Code
+## Step 4: Add the Snippet Code
 Copy the provided code and paste it right after the plugin's header comment in your main plugin's PHP file.
 ```php
 if ( ! function_exists( 'zorem_tracking' ) ) {
@@ -46,7 +43,7 @@ if ( ! function_exists( 'zorem_tracking' ) ) {
 
 ```
 
-## Step 6: Plugin Activation and Connection
+## Step 5: Plugin Activation and Connection
 1. Reactivate your plugin to ensure the recent changes take effect.
 2. After activation, your plugin will display an Opt-In screen.
 3. Click the "Allow & Continue" button on the Opt-In screen to establish the initial connection to our API, enabling your plugin to interact with our services seamlessly.
