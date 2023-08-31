@@ -27,15 +27,22 @@ Copy the provided code and paste it at the top of your main plugin's PHP file, r
 Copy the provided code and paste it right after the plugin's header comment in your main plugin's PHP file.
 ```php
 if ( ! function_exists( 'zorem_tracking' ) ) {
-    function zorem_tracking() {
-        require_once dirname(__FILE__) . '/zorem-tracking/zorem-tracking.php';
-        $tracker = WC_Trackers::get_instance();
-        $tracker->set_tracker_data( array(
-            'custom_key' => '544641515656',
-            'user_id' => '10',
-            'slug' => 'woocommerce-advanced-shipment-tracking'
-        ) );
-    }
+	function zorem_tracking() {
+		require_once dirname(__FILE__) . '/zorem-tracking/zorem-tracking.php';
+		$tracker = WC_Trackers::get_instance();
+		$tracker->set_tracker_data( array(
+			'custom_key'    => '544641515656',
+			'user_id'       => '10',
+			'menu' 			=> array(
+				'slug'           => 'woocommerce-advanced-shipment-tracking',
+				'parent'         => array(
+					'slug' => '',
+					),
+				) 
+			)
+		);
+		return $tracker;
+	}
 }
 
 ```
