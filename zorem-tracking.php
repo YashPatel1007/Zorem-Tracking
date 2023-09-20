@@ -18,7 +18,16 @@ class WC_Trackers {
 	/**
 	 * Initialize the main plugin function
 	*/
-	public function __construct() {						
+	public function __construct( $plugin_name, $plugin_slug, $user_id ,$setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug ) {				
+		$this->plugin_name = $plugin_name;
+		$this->plugin_slug = $plugin_slug;
+		$this->user_id = $user_id;
+		$this->setting_page_type = $setting_page_type;
+		$this->setting_page_location = $setting_page_location;
+		$this->parent_menu_type = $parent_menu_type;
+		$this->menu_slug = $menu_slug;
+		$this->plugin_slug_with_hyphens = str_replace('-', '_', $this->plugin_slug);
+		add_action('admin_enqueue_scripts', array($this, 'enqueue_plugin_styles'));
 		$this->init();			
 	}
 	
@@ -34,38 +43,54 @@ class WC_Trackers {
 	 *
 	 * @return WC_Advanced_Shipment_Tracking_Settings
 	*/
-	public static function get_instance() {
+	public static function get_instance( $plugin_name, $plugin_slug, $user_id ,$setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug ) {
 
 		if ( null === self::$instance ) {
-			self::$instance = new self();
+			self::$instance = new self( $plugin_name, $plugin_slug, $user_id ,$setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug );
 		}
 
 		return self::$instance;
 	}
 	/**
-     * Set custom data for tracking
-     *
-     * @param array $data Custom data array
-     */
-    public function set_tracker_data( $data ) {
-        // Do any necessary data validation or manipulation here
-        $this->tracker_data = $data;
-    }
+	 * Set custom data for tracking
+	 *
+	 * @param array $data Custom data array
+	 */
+	
 	/*
 	* init from parent mail class
 	*/
 	public function init() {
+		
 		//add_action( 'before_plugin_settings', array( $this, 'usage_data_signup_box' ) );
-		add_action( 'wp_ajax_ast_activate_usage_data', array( $this, 'ast_activate_usage_data_fun') );
-		add_action( 'wp_ajax_ast_skip_usage_data', array( $this, 'ast_skip_usage_data_fun') );	
-		add_action( 'zorem_usage_tracker_send', array( $this, 'send_tracking_data' ) );	
-		add_action( 'load-woocommerce_page_woocommerce-advanced-shipment-tracking', array( $this, 'load_admin_page' ) );	
+		add_action( 'wp_ajax_' . $this->plugin_slug_with_hyphens . '_activate_usage_data', array( $this, 'ast_activate_usage_data_fun') );
+		add_action( 'wp_ajax_' . $this->plugin_slug_with_hyphens . '_skip_usage_data', array( $this, 'ast_skip_usage_data_fun') );	
+		add_action( 'zorem_usage_data_' . $this->plugin_slug_with_hyphens, array( $this, 'send_tracking_data' ) );	
+		add_action( 'init' , array( $this, 'load_admin_page' ) );
+		
+		add_action( 'admin_init', array( $this, 'set_unset_usage_data_cron') );
+	
+	}
+	public function enqueue_plugin_styles() {
+		// Enqueue your CSS file
+		wp_enqueue_style('plugin-css', plugin_dir_url(__FILE__) . 'assets/css/style.css', array(), '1.0.0');
+		wp_enqueue_script('plugin-js', plugin_dir_url(__FILE__) . 'assets/js/main.js', array(), '1.0.0');
+		 
+		wp_localize_script('plugin-js', 'zorem_tracking_data', [
+			'plugin_slug_with_hyphens' => $this->plugin_slug_with_hyphens,
+		]);
+		
 	}
 	public function load_admin_page() {
-        if ( null == get_option( 'ast_usage_data_selector' ) ) {
-            $this->usage_data_signup_box();
-        }
-    }
+
+		if (isset($_GET['page']) && $_GET['page'] === $this->menu_slug) {
+			if (!get_option($this->plugin_slug_with_hyphens . '_usage_data_selector')) {
+				
+				$this->usage_data_signup_box();
+			}
+			
+		}
+	}
 	public function usage_data_signup_box() {
 		
 		include 'views/usage_data_signup_box.php';
@@ -77,24 +102,24 @@ class WC_Trackers {
 			exit( 'You are not allowed' );
 		}
 		
-		check_ajax_referer( 'ast_usage_data_form', 'ast_usage_data_form_nonce' );
+		check_ajax_referer( $this->plugin_slug_with_hyphens . '_usage_data_form', $this->plugin_slug_with_hyphens . '_usage_data_form_nonce' );
 
-		if ( isset( $_POST[ 'ast_optin_email_notification' ] ) && 0 == $_POST[ 'ast_optin_email_notification' ] && isset( $_POST[ 'ast_enable_usage_data' ] ) && 0 == $_POST[ 'ast_enable_usage_data' ] ) {
-			update_option( 'ast_usage_data_selector', true );
+		if ( isset( $_POST[ $this->plugin_slug_with_hyphens . '_optin_email_notification' ] ) && 0 == $_POST[ $this->plugin_slug_with_hyphens . '_optin_email_notification' ] && isset( $_POST[ $this->plugin_slug_with_hyphens . '_enable_usage_data' ] ) && 0 == $_POST[ $this->plugin_slug_with_hyphens . '_enable_usage_data' ] ) {
+			update_option( $this->plugin_slug_with_hyphens . '_usage_data_selector', true );
 			die();
 		}
 
-		if ( isset( $_POST[ 'ast_optin_email_notification' ] ) ) {						
-			update_option( 'ast_optin_email_notification', wc_clean( $_POST[ 'ast_optin_email_notification' ] ) );
+		if ( isset( $_POST[ $this->plugin_slug_with_hyphens . '_optin_email_notification' ] ) ) {						
+			update_option( $this->plugin_slug_with_hyphens . '_optin_email_notification', wc_clean( $_POST[ $this->plugin_slug_with_hyphens . '_optin_email_notification' ] ) );
 		}
 
-		if ( isset( $_POST[ 'ast_enable_usage_data' ] ) ) {						
-			update_option( 'ast_enable_usage_data', wc_clean( $_POST[ 'ast_enable_usage_data' ] ) );			
+		if ( isset( $_POST[ $this->plugin_slug_with_hyphens . '_enable_usage_data' ] ) ) {						
+			update_option( $this->plugin_slug_with_hyphens . '_enable_usage_data', wc_clean( $_POST[ $this->plugin_slug_with_hyphens . '_enable_usage_data' ] ) );			
 		}
 
 		$this->set_unset_usage_data_cron();
 
-		update_option( 'ast_usage_data_selector', true );		
+		update_option( $this->plugin_slug_with_hyphens . '_usage_data_selector', true );		
 	}
 
 	public function ast_skip_usage_data_fun() {
@@ -103,41 +128,42 @@ class WC_Trackers {
 			exit( 'You are not allowed' );
 		}
 
-		check_ajax_referer( 'ast_usage_skip_form', 'ast_usage_skip_form_nonce' );
+		check_ajax_referer( $this->plugin_slug_with_hyphens . '_usage_skip_form', $this->plugin_slug_with_hyphens . '_usage_skip_form_nonce' );
 
-		update_option( 'ast_usage_data_selector', true );
-		update_option( 'ast_optin_email_notification', 0 );
-		update_option( 'ast_enable_usage_data', 0 );
+		update_option( $this->plugin_slug_with_hyphens . '_usage_data_selector', true );
+		update_option( $this->plugin_slug_with_hyphens . '_optin_email_notification', 0 );
+		update_option( $this->plugin_slug_with_hyphens . '_enable_usage_data', 0 );
 
 		$this->set_unset_usage_data_cron();
 	}
 
 	public function set_unset_usage_data_cron() {
-		$ast_enable_usage_data = get_option( 'ast_enable_usage_data', 0 );
-		$ast_optin_email_notification = get_option( 'ast_optin_email_notification', 0 );
+		$ast_enable_usage_data = get_option( $this->plugin_slug_with_hyphens . '_enable_usage_data', 0 );
+		$ast_optin_email_notification = get_option( $this->plugin_slug_with_hyphens . '_optin_email_notification', 0 );
 
 		if ( 0 == $ast_enable_usage_data && 0 == $ast_optin_email_notification ) {
-			wp_clear_scheduled_hook( 'zorem_usage_tracker_send' );
-		} else if ( ! wp_next_scheduled ( 'zorem_usage_tracker_send' ) ) {
-			wp_schedule_event( time() + 10, 'weekly', 'zorem_usage_tracker_send' );
+			wp_clear_scheduled_hook( 'zorem_usage_data_' . $this->plugin_slug_with_hyphens );
+		} else if ( ! wp_next_scheduled ( 'zorem_usage_data_' . $this->plugin_slug_with_hyphens ) ) {
+			wp_schedule_event( time() + 10, 'weekly', 'zorem_usage_data_' . $this->plugin_slug_with_hyphens );
 		}
 	}
 
 	public function send_tracking_data() {
+		
 		// Don't trigger this on AJAX Requests.
 		if ( Constants::is_true( 'DOING_AJAX' ) ) {
 			return;
 		}
 		
-		$ast_enable_usage_data = get_option( 'ast_enable_usage_data', 0 );
-		$ast_optin_email_notification = get_option( 'ast_optin_email_notification', 0 );
+		$ast_enable_usage_data = get_option( $this->plugin_slug_with_hyphens . '_enable_usage_data', 0 );
+		$ast_optin_email_notification = get_option( $this->plugin_slug_with_hyphens . '_optin_email_notification', 0 );
 
 		if ( 0 == $ast_enable_usage_data && 0 == $ast_optin_email_notification ) {
 			return;
 		}
 		
 		// Update time first before sending to ensure it is set.
-		update_option( 'ast_usage_tracker_last_send', time() );
+		update_option( $this->plugin_slug_with_hyphens . '_usage_tracker_last_send', time() );
 
 		$params = $this->get_tracking_data();
 		
@@ -164,15 +190,20 @@ class WC_Trackers {
 	public function get_tracking_data() {
 		$data = array();
 
-		$ast_enable_usage_data = get_option( 'ast_enable_usage_data', 0 );
-		$ast_optin_email_notification = get_option( 'ast_optin_email_notification', 0 );
+		$ast_enable_usage_data = get_option( $this->plugin_slug_with_hyphens . '_enable_usage_data', 0 );
+		$ast_optin_email_notification = get_option( $this->plugin_slug_with_hyphens . '_optin_email_notification', 0 );
 		
 		// General site info.
+		$data['plugin'] = $this->plugin_name;
+		$data['plugin_slug'] = $this->plugin_slug;
+		$data['setting_page_type'] = $this->setting_page_type;
+		$data['setting_page_location'] = $this->setting_page_location;
+		$data['parent_menu_type'] = $this->parent_menu_type;
+		$data['menu_slug'] = $this->menu_slug;
+		$data['user_id'] = $this->user_id;
 		$data['url']   = home_url();
 		$data['email'] = get_option( 'admin_email' );
 		$data['opt_in'] = $ast_optin_email_notification;
-		$data['plugin'] = 'Advanced Shipment Tracking for WooCommerce';
-		$data['custom_key'] = $this->tracker_data['custom_key'];
 		
 		if ( 1 == $ast_enable_usage_data ) {
 
