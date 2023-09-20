@@ -18,7 +18,7 @@ class WC_Trackers {
 	/**
 	 * Initialize the main plugin function
 	*/
-	public function __construct( $plugin_name, $plugin_slug, $user_id ,$setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug ) {				
+	public function __construct( $plugin_name, $plugin_slug, $user_id ,$setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug, $plugin_id ) {				
 		$this->plugin_name = $plugin_name;
 		$this->plugin_slug = $plugin_slug;
 		$this->user_id = $user_id;
@@ -26,6 +26,7 @@ class WC_Trackers {
 		$this->setting_page_location = $setting_page_location;
 		$this->parent_menu_type = $parent_menu_type;
 		$this->menu_slug = $menu_slug;
+		$this->plugin_id = $plugin_id;
 		$this->plugin_slug_with_hyphens = str_replace('-', '_', $this->plugin_slug);
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_plugin_styles'));
 		$this->init();			
@@ -43,10 +44,10 @@ class WC_Trackers {
 	 *
 	 * @return WC_Advanced_Shipment_Tracking_Settings
 	*/
-	public static function get_instance( $plugin_name, $plugin_slug, $user_id ,$setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug ) {
+	public static function get_instance( $plugin_name, $plugin_slug, $user_id ,$setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug, $plugin_id ) {
 
 		if ( null === self::$instance ) {
-			self::$instance = new self( $plugin_name, $plugin_slug, $user_id ,$setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug );
+			self::$instance = new self( $plugin_name, $plugin_slug, $user_id ,$setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug, $plugin_id );
 		}
 
 		return self::$instance;

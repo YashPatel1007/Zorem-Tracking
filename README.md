@@ -26,19 +26,20 @@ Copy the provided code and paste it right after the plugin's header comment in y
 if ( ! function_exists( 'zorem_tracking' ) ) {
     function zorem_tracking() {
         require_once dirname(__FILE__) . '/zorem-tracking/zorem-tracking.php';
-        $tracker = WC_Trackers::get_instance();
-        $tracker->set_tracker_data( array(
-            'custom_key' => '544641515656',
-            'user_id'    => '10',
-            'menu'       => array(
-                'slug'   => 'woocommerce-advanced-shipment-tracking',
-                'parent' => array(
-                    'slug' => '',
-                ),
-            )
-        ) );
-        return $tracker;
+        $plugin_name = "Plugin Name";
+        $plugin_slug = "plugin-slug";
+        $user_id = "10";
+        $setting_page_type = "top-level";
+        $setting_page_location =  "A submenu under other plugin's top level menu";
+        $parent_menu_type = "";
+        $menu_slug = "menu-slug";
+        $plugin_id = "7";
+        $zorem_tracking = WC_Trackers::get_instance( $plugin_name, $plugin_slug, $user_id,
+            $setting_page_type, $setting_page_location, $parent_menu_type,  $menu_slug, $plugin_id );
+
+        return $zorem_tracking;
     }
+    zorem_tracking();
 }
 
 ```
