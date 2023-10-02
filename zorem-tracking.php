@@ -231,6 +231,10 @@ class WC_Trackers {
 
 			$data['get_order_value'] = $this->get_order_value();
 			
+			$data['get_order_value_three_month'] = $this->get_order_value_three_month();
+
+			$data['get_order_counts_three_month'] = $this->get_order_counts_three_month();
+			
 		}
 
 		return $data;
